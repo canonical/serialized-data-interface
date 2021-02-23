@@ -19,6 +19,11 @@ properties:
 
 When our charms interchange data, this library will validate the data through the schema on both ends.
 
+# Real World Example
+
+**** Minio with Provider Interface: https://github.com/DomFleischmann/charm-minio/tree/argo-relation
+* Argo Controller with Requirer Interface: https://github.com/DomFleischmann/argo-operators/tree/operator-v2.3.0/operators/argo-controller
+
 # TODO
 
 * Figure out a clean way of distributing interfaces which use this library with their specific schemas.
