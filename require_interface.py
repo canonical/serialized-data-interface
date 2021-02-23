@@ -65,7 +65,7 @@ class RequireAppInterface(Object):
             if not raw_relation_data:
                 continue
 
-            relation_data = yaml.load(raw_relation_data)
+            relation_data = yaml.safe_load(raw_relation_data)
 
             self.interface_schema.validate(relation_data)
             data.append(relation_data)
