@@ -16,14 +16,18 @@ from ops.charm import CharmBase
 class InterfaceDataChanged(EventBase):
     pass
 
+
 class RequireInterfaceEvents(ObjectEvents):
     data_changed = EventSource(InterfaceDataChanged)
+
 
 class RequireAppInterface(Object):
     state = StoredState()
     on = RequireInterfaceEvents()
 
-    def __init__(self, charm: CharmBase, relation_name: str, interface_schema_file: str):
+    def __init__(
+        self, charm: CharmBase, relation_name: str, interface_schema_file: str
+    ):
         super().__init__(charm, relation_name)
 
         self.charm = charm
@@ -75,4 +79,3 @@ class RequireAppInterface(Object):
         if self.is_available and self.state.data_hash != self._data_hash:
             self.state.data_hash = self._data_hash
             self.on.data_changed.emit()
-

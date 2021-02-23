@@ -7,7 +7,9 @@ import yaml
 
 
 class ProvideAppInterface(Object):
-    def __init__(self, charm: CharmBase, relation_name: str, interface_schema_file: str):
+    def __init__(
+        self, charm: CharmBase, relation_name: str, interface_schema_file: str
+    ):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
