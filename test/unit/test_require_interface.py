@@ -8,9 +8,10 @@ from require_interface import RequireAppInterface
 class RequireCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        self.interface = RequireAppInterface(
-            self, "app-requires", "test/unit/test_schema.yaml"
-        )
+        with open("test/unit/test_schema.yaml", "r") as stream:
+            self.interface = RequireAppInterface(
+                self, "app-requires", stream
+            )
 
 
 def test_require():

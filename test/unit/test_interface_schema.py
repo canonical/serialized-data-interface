@@ -5,7 +5,9 @@ from jsonschema.exceptions import ValidationError
 
 class InterfaceSchemaTestCase(TestCase):
     def test_success_validate_schema(self):
-        test_schema = InterfaceSchema("test/unit/test_schema.yaml")
+        with open("test/unit/test_schema.yaml", "r") as stream:
+            test_schema = InterfaceSchema(stream)
+
         data = {
             "service": "my-service",
             "port": 4242,
@@ -17,7 +19,8 @@ class InterfaceSchemaTestCase(TestCase):
 
     def test_failed_validate_schema(self):
         with self.assertRaises(ValidationError):
-            test_schema = InterfaceSchema("test/unit/test_schema.yaml")
+            with open("test/unit/test_schema.yaml", "r") as stream:
+                test_schema = InterfaceSchema(stream)
             data = {
                 "service": "my-service",
                 "port": "4242",

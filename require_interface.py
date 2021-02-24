@@ -26,13 +26,13 @@ class RequireAppInterface(Object):
     on = RequireInterfaceEvents()
 
     def __init__(
-        self, charm: CharmBase, relation_name: str, interface_schema_file: str
+        self, charm: CharmBase, relation_name: str, interface_schema: str
     ):
         super().__init__(charm, relation_name)
 
         self.charm = charm
         self.relation_name = relation_name
-        self.interface_schema = InterfaceSchema(interface_schema_file)
+        self.interface_schema = InterfaceSchema(interface_schema)
         self.state.set_default(data_hash=None)
 
         self.framework.observe(

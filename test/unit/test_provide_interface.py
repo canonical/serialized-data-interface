@@ -9,11 +9,12 @@ def test_app_provide():
     class ProvideCharm(CharmBase):
         def __init__(self, *args):
             super().__init__(*args)
-            self.interface = ProvideAppInterface(
-                self,
-                "app-provides",
-                "test/unit/test_schema.yaml",
-            )
+            with open("test/unit/test_schema.yaml", "r") as stream:
+                self.interface = ProvideAppInterface(
+                    self,
+                    "app-provides",
+                    stream,
+                )
 
     harness = Harness(
         ProvideCharm,
