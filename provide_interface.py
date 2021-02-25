@@ -7,13 +7,16 @@ import yaml
 
 
 class ProvideAppInterface(Object):
-    def __init__(
-        self, charm: CharmBase, relation_name: str, interface_schema: str
-    ):
+    SCHEMA = ""
+
+    def __init__(self, charm: CharmBase, relation_name: str, schema_stream: str = None):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
-        self.interface_schema = InterfaceSchema(interface_schema)
+        # If schema_stream argument is provided overwrite SCHEMA.
+        if schema_stream:
+            self.SCHEMA = schema_stream
+        self.interface_schema = InterfaceSchema(self.SCHEMA)
 
     def update_relation_data(self, data: dict):
         self.interface_schema.validate(data)
