@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="serialized_data_interface",
-    version="0.0.1",
+    version="0.0.2",
     author="Dominik Fleischmann",
     author_email="dominik.fleischmann@canonical.com",
     description="Serialized Data Interface for Juju Operators",
@@ -21,5 +21,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.6",
 )
