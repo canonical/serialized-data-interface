@@ -1,8 +1,25 @@
-service:
-  type: string
-port:
-  type: number
-access-key:
-  type: string
-secret-key:
-  type: string
+v1:
+  provides:
+    type: object
+    properties:
+      service:
+        type: string
+      port:
+        type: number
+      access-key:
+        type: string
+      secret-key:
+        type: string
+v2:
+  provides:
+    required: [foo]
+    type: object
+    properties:
+      foo:
+        type: string
+  requires:
+    required: [bar]
+    type: object
+    properties:
+      bar:
+        type: "null"
