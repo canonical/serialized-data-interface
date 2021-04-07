@@ -5,17 +5,18 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="serialized_data_interface",
-    version="0.0.2",
+    version="0.2.0",
     author="Dominik Fleischmann",
     author_email="dominik.fleischmann@canonical.com",
     description="Serialized Data Interface for Juju Operators",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    py_modules=["require_interface", "provide_interface", "interface_schema"],
+    packages=setuptools.find_packages(),
     install_requires=[
+        "jsonschema",
         "ops",
         "pyyaml",
-        "jsonschema",
+        "requests",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
