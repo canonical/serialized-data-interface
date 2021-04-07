@@ -6,25 +6,39 @@ This libraries enables its user to create serialized and validated Juju Operator
 
 An interface Schema will be defined through YAML e.g:
 
-```
-type: object
-properties:
-  service:
-    type: string
-  port:
-    type: number
-  access-key:
-    type: string
-  secret-key:
-    type: string
+```yaml
+v1:
+  provides:
+    type: object
+    properties:
+      access-key:
+        type: string
+      namespace:
+        type: ['string', 'null']
+      port:
+        type: number
+      secret-key:
+        type: string
+      secure:
+        type: boolean
+      service:
+        type: string
+    required:
+      - access-key
+      - port
+      - secret-key
+      - secure
+      - service
 ```
 
 When our charms interchange data, this library will validate the data through the schema on both ends.
 
 # Real World Example
 
-**** Minio with Provider Interface: https://github.com/DomFleischmann/charm-minio/tree/argo-relation
-* Argo Controller with Requirer Interface: https://github.com/DomFleischmann/argo-operators/tree/operator-v2.3.0/operators/argo-controller
+* Minio with Provider Interface
+  * https://github.com/canonical/minio-operator/
+* Argo Controller with Requirer Interface:
+  * https://github.com/canonical/argo-operators/
 
 # TODO
 
