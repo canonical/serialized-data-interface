@@ -139,7 +139,9 @@ def _get_schema(schema):
     """Ensures schema is retrieved if necessary, then loads it."""
 
     if isinstance(schema, str):
-        return yaml.safe_load(requests.get(schema).text)
+        response = requests.get(schema)
+        response.raise_for_status()
+        return yaml.safe_load(response.text)
 
     return schema
 
