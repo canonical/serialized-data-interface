@@ -1,3 +1,6 @@
+import hashlib
+import time
+from pathlib import Path
 from typing import Dict, Optional, Set
 
 import requests
@@ -139,9 +142,25 @@ def _get_schema(schema):
     """Ensures schema is retrieved if necessary, then loads it."""
 
     if isinstance(schema, str):
-        response = requests.get(schema)
-        response.raise_for_status()
-        return yaml.safe_load(response.text)
+        h = hashlib.md5()
+        h.update(schema.encode("utf-8"))
+        p = Path("/run") / h.hexdigest()
+        if p.exists():
+            return yaml.safe_load(p.read_text())
+        else:
+            for _ in range(30):
+                try:
+                    response = requests.get(schema)
+                    response.raise_for_status()
+                    break
+                except requests.RequestException:
+                    time.sleep(5)
+            else:
+                response = requests.get(schema)
+                response.raise_for_status()
+
+            p.write_text(response.text)
+            return yaml.safe_load(response.text)
 
     return schema
 
