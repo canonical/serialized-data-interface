@@ -144,7 +144,7 @@ def _get_schema(schema):
     if isinstance(schema, str):
         h = hashlib.md5()
         h.update(schema.encode("utf-8"))
-        p = Path("/run") / h.hexdigest()
+        p = Path("/tmp") / h.hexdigest()
         if p.exists():
             return yaml.safe_load(p.read_text())
         else:
