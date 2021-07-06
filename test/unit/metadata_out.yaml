@@ -1,0 +1,47 @@
+provides:
+  oidc-client:
+    interface: oidc-client
+    schema:
+      v1:
+        provides:
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            redirectURIs:
+              items:
+                type: string
+              type: array
+            secret:
+              type: string
+          required:
+          - id
+          - name
+          - redirectURIs
+          - secret
+          type: object
+    versions:
+    - v1
+requires:
+  ingress:
+    interface: ingress
+    schema:
+      v1:
+        requires:
+          properties:
+            port:
+              type: integer
+            prefix:
+              type: string
+            rewrite:
+              type: string
+            service:
+              type: string
+          required:
+          - service
+          - port
+          - prefix
+          type: object
+    versions:
+    - v1

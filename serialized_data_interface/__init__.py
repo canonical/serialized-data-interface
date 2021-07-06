@@ -1,14 +1,11 @@
-import hashlib
-import time
-from pathlib import Path
 from typing import Dict, Optional, Set
 
-import requests
 import yaml
 from jsonschema import validate
 from ops.charm import CharmBase
 from ops.framework import Object
 from ops.model import Application
+from .utils import get_schema
 
 __all__ = [
     "NoCompatibleVersions",
@@ -138,33 +135,6 @@ class SerializedDataInterface(Object):
             rel.data[self.charm.app]["data"] = data
 
 
-def _get_schema(schema):
-    """Ensures schema is retrieved if necessary, then loads it."""
-
-    if isinstance(schema, str):
-        h = hashlib.md5()
-        h.update(schema.encode("utf-8"))
-        p = Path("/tmp") / h.hexdigest()
-        if p.exists():
-            return yaml.safe_load(p.read_text())
-        else:
-            for _ in range(30):
-                try:
-                    response = requests.get(schema)
-                    response.raise_for_status()
-                    break
-                except requests.RequestException:
-                    time.sleep(5)
-            else:
-                response = requests.get(schema)
-                response.raise_for_status()
-
-            p.write_text(response.text)
-            return yaml.safe_load(response.text)
-
-    return schema
-
-
 def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
     """Reads metadata.yaml to retrieve schema-checked interface objects.
 
@@ -189,7 +159,7 @@ def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
         name: SerializedDataInterface(
             charm,
             name,
-            _get_schema(interface["schema"]),
+            get_schema(interface["schema"]),
             set(interface["versions"]),
             "provides",
         )
@@ -203,7 +173,7 @@ def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
         name: SerializedDataInterface(
             charm,
             name,
-            _get_schema(interface["schema"]),
+            get_schema(interface["schema"]),
             set(interface["versions"]),
             "requires",
         )
