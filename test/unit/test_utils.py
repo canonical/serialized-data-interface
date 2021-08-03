@@ -37,47 +37,47 @@ PROXY_URLS = {i: f"http://a:800{str(i)}" for i in range(6)}
         ({}, {"http": None, "https": None, "no-proxy": None}),
         # Typical proxy args
         (
-                {
-                    "HTTP_PROXY": PROXY_URLS[0],
-                    "HTTPS_PROXY": PROXY_URLS[1],
-                    "NO_PROXY": PROXY_URLS[2],
-                },
-                {
-                    "http": PROXY_URLS[0],
-                    "https": PROXY_URLS[1],
-                    "no-proxy": PROXY_URLS[2],
-                }
+            {
+                "HTTP_PROXY": PROXY_URLS[0],
+                "HTTPS_PROXY": PROXY_URLS[1],
+                "NO_PROXY": PROXY_URLS[2],
+            },
+            {
+                "http": PROXY_URLS[0],
+                "https": PROXY_URLS[1],
+                "no-proxy": PROXY_URLS[2],
+            },
         ),
         # Juju proxy args
         (
-                {
-                    "JUJU_CHARM_HTTP_PROXY": PROXY_URLS[0],
-                    "JUJU_CHARM_HTTPS_PROXY": PROXY_URLS[1],
-                    "JUJU_CHARM_NO_PROXY": PROXY_URLS[2],
-                },
-                {
-                    "http": PROXY_URLS[0],
-                    "https": PROXY_URLS[1],
-                    "no-proxy": PROXY_URLS[2],
-                }
+            {
+                "JUJU_CHARM_HTTP_PROXY": PROXY_URLS[0],
+                "JUJU_CHARM_HTTPS_PROXY": PROXY_URLS[1],
+                "JUJU_CHARM_NO_PROXY": PROXY_URLS[2],
+            },
+            {
+                "http": PROXY_URLS[0],
+                "https": PROXY_URLS[1],
+                "no-proxy": PROXY_URLS[2],
+            },
         ),
         # Ensure Juju take priority over regular proxy
         (
-                {
-                    "JUJU_CHARM_HTTP_PROXY": PROXY_URLS[0],
-                    "JUJU_CHARM_HTTPS_PROXY": PROXY_URLS[1],
-                    "JUJU_CHARM_NO_PROXY": PROXY_URLS[2],
-                    "HTTP_PROXY": PROXY_URLS[3],
-                    "HTTPS_PROXY": PROXY_URLS[4],
-                    "NO_PROXY": PROXY_URLS[5],
-                },
-                {
-                    "http": PROXY_URLS[0],
-                    "https": PROXY_URLS[1],
-                    "no-proxy": PROXY_URLS[2],
-                }
+            {
+                "JUJU_CHARM_HTTP_PROXY": PROXY_URLS[0],
+                "JUJU_CHARM_HTTPS_PROXY": PROXY_URLS[1],
+                "JUJU_CHARM_NO_PROXY": PROXY_URLS[2],
+                "HTTP_PROXY": PROXY_URLS[3],
+                "HTTPS_PROXY": PROXY_URLS[4],
+                "NO_PROXY": PROXY_URLS[5],
+            },
+            {
+                "http": PROXY_URLS[0],
+                "https": PROXY_URLS[1],
+                "no-proxy": PROXY_URLS[2],
+            },
         ),
-    ]
+    ],
 )
 def test_get_proxy_settings_from_env(env_dict, expected_proxies):
     # Patch the environment with our proxy settings

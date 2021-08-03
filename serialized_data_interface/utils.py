@@ -88,19 +88,18 @@ def _get_schema_response_from_remote(schema: str) -> requests.Response:
 def _get_proxy_settings_from_env() -> dict:
     """Returns proxy settings dict inferred from environment"""
     proxies = {}
-    proxies['http'] = \
-        os.environ.get("JUJU_CHARM_HTTP_PROXY") or \
-        os.environ.get("HTTP_PROXY") or \
-        None
+    proxies["http"] = (
+        os.environ.get("JUJU_CHARM_HTTP_PROXY") or os.environ.get("HTTP_PROXY") or None
+    )
 
-    proxies['https'] = \
-        os.environ.get("JUJU_CHARM_HTTPS_PROXY") or \
-        os.environ.get("HTTPS_PROXY") or \
-        None
+    proxies["https"] = (
+        os.environ.get("JUJU_CHARM_HTTPS_PROXY")
+        or os.environ.get("HTTPS_PROXY")
+        or None
+    )
 
-    proxies['no-proxy'] = \
-        os.environ.get("JUJU_CHARM_NO_PROXY") or \
-        os.environ.get("NO_PROXY") or \
-        None
+    proxies["no-proxy"] = (
+        os.environ.get("JUJU_CHARM_NO_PROXY") or os.environ.get("NO_PROXY") or None
+    )
 
     return proxies
