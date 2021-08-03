@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "serialized_data_interface"
-version = "0.3.1"
+version = "0.3.2"
 description = "Serialized Data Interface for Juju Operators"
 authors = [
     "Dominik Fleischmann <dominik.fleischmann@canonical.com>",
