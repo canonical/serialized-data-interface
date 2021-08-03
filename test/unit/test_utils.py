@@ -87,4 +87,5 @@ def test_get_proxy_settings_from_env(env_dict, expected_proxies):
 
 
 # TODO (ca-scribner): Need a test that simulates a proxy to ensure we can get
-#  schema through a proxy
+#  schema through a proxy.  Or, at least mock requests to make sure it gets
+#  an expected call?

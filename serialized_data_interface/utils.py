@@ -40,8 +40,6 @@ class ZipFileWithPermissions(ZipFile):
 def get_schema(schema):
     """Ensures schema is retrieved if necessary, then loads it."""
 
-    print("DEBUG: in get_schema and curious if print will surface")
-
     if isinstance(schema, str):
         h = hashlib.md5()
         h.update(schema.encode("utf-8"))
@@ -66,11 +64,12 @@ def get_schema(schema):
 
 def _get_schema_response_from_remote(schema: str) -> requests.Response:
     """
-    Returns a response object for a schema from a remote location, observing proxy settings if available
+    Returns a schema response object from a remote location, observing proxy settings if available
 
     Raises for status if unsuccessful.
 
-    proxy settings for each of http, https, and no_proxy are inferred from environment variables in the order:
+    proxy settings for each of http, https, and no_proxy are inferred from environment variables
+    in the order:
         JUJU_HTTP(S)_PROXY/JUJU_NO_PROXY
         HTTP(S)_PROXY/NO_PROXY
 
@@ -104,5 +103,4 @@ def _get_proxy_settings_from_env() -> dict:
         os.environ.get("NO_PROXY") or \
         None
 
-    print(f"_get_proxy_settings_from_env found proxies={proxies}")
     return proxies
