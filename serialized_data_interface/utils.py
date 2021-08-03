@@ -62,7 +62,7 @@ def get_schema(schema):
     return schema
 
 
-def _get_schema_response_from_remote(schema: str) -> requests.Response:
+def _get_schema_response_from_remote(url: str) -> requests.Response:
     """
     Returns a schema response object from a remote location, observing proxy settings if available
 
@@ -74,13 +74,13 @@ def _get_schema_response_from_remote(schema: str) -> requests.Response:
         HTTP(S)_PROXY/NO_PROXY
 
     Args:
-        schema (str): String url to access the schema
+        url (str): String url to access the schema
 
     Returns:
         requests.Response: Schema as a Response object
     """
     proxies = _get_proxy_settings_from_env()
-    response = requests.get(url=schema, proxies=proxies)
+    response = requests.get(url=url, proxies=proxies)
     response.raise_for_status()
     return response
 

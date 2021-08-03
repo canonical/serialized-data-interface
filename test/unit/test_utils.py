@@ -2,9 +2,13 @@ import os
 import pytest
 from unittest import mock
 import yaml
+import requests
 
 import serialized_data_interface.local_sdi as local_sdi
-from serialized_data_interface.utils import _get_proxy_settings_from_env
+from serialized_data_interface.utils import (
+    _get_proxy_settings_from_env,
+    _get_schema_response_from_remote,
+)
 
 
 def test_get_schema():
@@ -28,6 +32,14 @@ def test_get_schema():
 
 
 PROXY_URLS = {i: f"http://a:800{str(i)}" for i in range(6)}
+
+
+def mocked_requests_get(*args, **kwargs):
+    """Mocked response so the code doesn't raise an exception"""
+    response = requests.Response()
+    response.status_code = 200
+    response._content = str.encode("{'some': 'yaml'}")
+    return response
 
 
 @pytest.mark.parametrize(
@@ -85,7 +97,10 @@ def test_get_proxy_settings_from_env(env_dict, expected_proxies):
         proxies = _get_proxy_settings_from_env()
         assert proxies == expected_proxies
 
-
-# TODO (ca-scribner): Need a test that simulates a proxy to ensure we can get
-#  schema through a proxy.  Or, at least mock requests to make sure it gets
-#  an expected call?
+        with mock.patch(
+            "serialized_data_interface.utils.requests.get",
+            side_effect=mocked_requests_get,
+        ):
+            url = ""
+            _get_schema_response_from_remote(url)
+            requests.get.assert_called_with(url=url, proxies=expected_proxies)
