@@ -44,7 +44,7 @@ def test_provide_one_relation():
         """,
     )
     harness.set_leader(True)
-    rel_id = harness.add_relation("app-requires", "foo")
+    rel_id = harness.add_relation("app-provides", "foo")
     harness.add_relation_unit(rel_id, "foo/0")
     harness.update_relation_data(
         rel_id,

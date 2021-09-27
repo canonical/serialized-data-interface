@@ -5,9 +5,12 @@ from jsonschema import validate
 from ops.charm import CharmBase
 from ops.framework import Object
 from ops.model import Application
+
 from .utils import get_schema
 
 __all__ = [
+    "AppNameOmitted",
+    "InvalidAppName",
     "NoCompatibleVersions",
     "NoSchemaDefined",
     "NoVersionsListed",
@@ -42,6 +45,29 @@ class NoVersionsListed(Exception):
 
     def __str__(self):
         return f"List of {self.relation} versions not found for apps: {self.apps}"
+
+
+class AppNameOmitted(Exception):
+    def __init__(self, relation, versions):
+        self.relation = relation
+        self.versions = versions
+
+    def __str__(self):
+        versions = list(self.versions.values())
+        return (
+            "Sending data across multiple relations with different "
+            "schema versions requires `app_name` to be passed in. "
+            f"Found versions {versions} for relation {self.relation}"
+        )
+
+
+class InvalidAppName(Exception):
+    def __init__(self, relation, app_name):
+        self.relation = relation
+        self.app_name = app_name
+
+    def __str__(self):
+        return f"Application {self.app_name} not found for relation {self.relation}"
 
 
 class SerializedDataInterface(Object):
@@ -125,14 +151,46 @@ class SerializedDataInterface(Object):
 
         return data
 
-    def send_data(self, data: dict):
-        data = yaml.dump(data)
-        for rel in self._relations:
+    def send_data(self, data: dict, app_name: str = None):
+        """Send data to related app(s).
+
+        `app_name` may be omitted if all related apps are on the same version of the schema.
+        Otherwise, it must be specified. Data is validated by the relation schema before being
+        sent.
+        """
+
+        # self.versions looks like this example:
+        #
+        #     {'foo': 'v1', 'bar': 'v2', 'baz': 'v3'}
+        #
+        # Where `foo`, `bar`, and `baz` are related application names, and `v1`, `v2`, `v3`
+        # are the agreed-upon schema versions. First, we check to make sure that either:
+        #
+        #  - `app_name` is defined, or
+        #  - all related apps are using the same schema version
+        if len(set(self.versions.values())) != 1 and app_name is None:
+            raise AppNameOmitted(self.relation_name, self.versions)
+
+        # Then, we ensure that `app_name` is actually a valid related application
+        # by filtering out any related apps that don't match the name, and raising an error
+        # if the resulting list is empty.
+        relations = self._relations
+
+        if app_name is not None:
+            relations = [r for r in relations if r.app.name == app_name]
+
+        if not relations:
+            raise InvalidAppName(self.relation_name, app_name)
+
+        serialized = yaml.dump(data)
+        for rel in relations:
             try:
-                validate(instance=data, schema=self.schema[self.versions[rel.app.name]])
+                schema = self.schema[self.versions[rel.app.name]][self.end]
             except KeyError:
                 raise NoSchemaDefined(self.end)
-            rel.data[self.charm.app]["data"] = data
+
+            validate(instance=data, schema=schema)
+            rel.data[self.charm.app]["data"] = serialized
 
 
 def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
