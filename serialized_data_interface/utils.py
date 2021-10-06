@@ -1,11 +1,11 @@
-from pathlib import Path
 import hashlib
-import time
 import os
-import yaml
+import time
+from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
 import requests
+import yaml
 
 
 # Custom ZipFile class due to extractall not keeping file permissions

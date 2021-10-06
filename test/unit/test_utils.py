@@ -1,8 +1,9 @@
 import os
-import pytest
 from unittest import mock
-import yaml
+
+import pytest
 import requests
+import yaml
 
 import serialized_data_interface.local_sdi as local_sdi
 from serialized_data_interface.utils import (

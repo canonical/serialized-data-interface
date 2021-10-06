@@ -1,6 +1,7 @@
-import yaml
 import os
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
+
+import yaml
 
 import serialized_data_interface.local_sdi as local_sdi
 
