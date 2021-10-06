@@ -1,9 +1,10 @@
 import pytest
-import serialized_data_interface as sdi
 import yaml
+from jsonschema.exceptions import ValidationError
 from ops.charm import CharmBase
 from ops.testing import Harness
-from jsonschema.exceptions import ValidationError
+
+import serialized_data_interface as sdi
 
 
 class ProvideCharm(CharmBase):

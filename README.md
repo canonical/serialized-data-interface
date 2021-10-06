@@ -31,10 +31,13 @@ v1:
       - service
 ```
 
-When our charms interchange data, this library will validate the data through the schema on both ends.
+When our charms interchange data, this library will validate the data through the schema on both
+ends.
 
 # Usage
-In our charm metadata we would add the following lines to define our schema and the supported versions:
+
+In our charm metadata we would add the following lines to define our schema and the supported
+versions:
 
 ```yaml
 provides:
@@ -44,7 +47,9 @@ provides:
     versions: [v1]
 ```
 
-In this case SDI will pull the schema from Github during deployment. If we want to deploy our charm in environments where Github isn't available we can pull the schemas during our build process by adding some lines like this in our `tox.ini` file:
+In this case SDI will pull the schema from Github during deployment. If we want to deploy our charm
+in environments where Github isn't available we can pull the schemas during our build process by
+adding some lines like this in our `tox.ini` file:
 
 ```
 [testenv:build]
@@ -55,11 +60,11 @@ commands =
 
 # Real World Example
 
-* Minio with Provider Interface
-  * https://github.com/canonical/minio-operator/
-* Argo Controller with Requirer Interface:
-  * https://github.com/canonical/argo-operators/
+- Minio with Provider Interface
+  - https://github.com/canonical/minio-operator/
+- Argo Controller with Requirer Interface:
+  - https://github.com/canonical/argo-operators/
 
 # TODO
 
-* Currently only provides data to App relations, should also support unit relations.
+- Currently only provides data to App relations, should also support unit relations.

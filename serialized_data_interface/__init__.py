@@ -1,10 +1,10 @@
-from typing import Dict, Optional, Set
+from typing import Dict, Optional, Set, Tuple
 
 import yaml
 from jsonschema import validate
 from ops.charm import CharmBase
 from ops.framework import Object
-from ops.model import Application
+from ops.model import Application, Relation
 
 from .utils import get_schema
 
@@ -81,7 +81,7 @@ class SerializedDataInterface(Object):
         self,
         charm: CharmBase,
         relation_name: str,
-        schema: str,
+        schema: dict,
         versions: Set[str],
         end: str,
     ):
@@ -126,7 +126,7 @@ class SerializedDataInterface(Object):
     def _relations(self):
         return [rel for rel in self.model.relations[self.relation_name] if rel.app]
 
-    def get_data(self) -> list:
+    def get_data(self) -> Dict[Tuple[Relation, Application], Dict]:
         other = {
             "provides": "requires",
             "requires": "provides",

@@ -1,11 +1,12 @@
 import os
 import sys
-from zipfile import ZipFile, ZIP_DEFLATED
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import yaml
-from .utils import get_schema, ZipFileWithPermissions
+
+from .utils import ZipFileWithPermissions, get_schema
 
 
 def create_new_metadata(metadata):
