@@ -123,8 +123,10 @@ class SerializedDataInterface(Object):
         self.end = end
 
     def __repr__(self):
-        return f"SerializedDataInterface(charm={self.charm}, relation_name={self.relation_name}, " \
-               f"schema={self.schema}, versions={self.versions}, end={self.end}"
+        return (
+            f"SerializedDataInterface(charm={self.charm}, relation_name={self.relation_name}, "
+            f"schema={self.schema}, versions={self.versions}, end={self.end}"
+        )
 
     @property
     def _relations(self):
