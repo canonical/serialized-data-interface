@@ -125,7 +125,7 @@ class SerializedDataInterface(Object):
     def __repr__(self):
         return (
             f"SerializedDataInterface(charm={self.charm}, relation_name={self.relation_name}, "
-            f"schema={self.schema}, versions={self.versions}, end={self.end}"
+            f"schema={self.schema}, versions={self.versions}, end={self.end})"
         )
 
     @property
