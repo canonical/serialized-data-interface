@@ -3,7 +3,6 @@ from typing import Dict, Optional, Set, Tuple
 import yaml
 from jsonschema import validate
 from ops.charm import CharmBase
-from ops.framework import Object
 from ops.model import Application, Relation
 
 from .utils import get_schema
@@ -87,7 +86,7 @@ class DuplicateRelation(Exception):
         return f"Relations defined in both requires and provides: {rels}"
 
 
-class SerializedDataInterface(Object):
+class SerializedDataInterface:
     """Represents a schema-defined interface between two charms.
 
     The schema should match the JSON Schema specification, though
@@ -102,14 +101,12 @@ class SerializedDataInterface(Object):
         versions: Set[str],
         end: str,
     ):
-        super().__init__(charm, relation_name)
-
-        for relation in self.model.relations[relation_name]:
+        for relation in charm.model.relations[relation_name]:
             relation.data[charm.app]["_supported_versions"] = yaml.dump(list(versions))
 
         others = {
             app.name: bag.get("_supported_versions")
-            for relation in self.model.relations[relation_name]
+            for relation in charm.model.relations[relation_name]
             for app, bag in relation.data.items()
             if isinstance(app, Application) and not app._is_our_app
         }
@@ -147,7 +144,9 @@ class SerializedDataInterface(Object):
 
     @property
     def _relations(self):
-        return [rel for rel in self.model.relations[self.relation_name] if rel.app]
+        return [
+            rel for rel in self.charm.model.relations[self.relation_name] if rel.app
+        ]
 
     def get_data(self) -> Dict[Tuple[Relation, Application], Dict]:
         other = {
