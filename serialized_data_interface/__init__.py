@@ -70,6 +70,23 @@ class InvalidAppName(Exception):
         return f"Application {self.app_name} not found for relation {self.relation}"
 
 
+class InvalidRelationName(Exception):
+    def __init__(self, relation):
+        self.relation = relation
+
+    def __str__(self):
+        return f"Relation {self.relation} not found in metadata.yaml"
+
+
+class DuplicateRelation(Exception):
+    def __init__(self, relations):
+        self.relations = relations
+
+    def __str__(self):
+        rels = ", ".join(self.relations)
+        return f"Relations defined in both requires and provides: {rels}"
+
+
 class SerializedDataInterface(Object):
     """Represents a schema-defined interface between two charms.
 
@@ -248,3 +265,42 @@ def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
     }
 
     return {**provides, **requires}
+
+
+def get_interface(charm, interface_name: str) -> Optional[SerializedDataInterface]:
+    """Reads metadata.yaml to retrieve schema-checked interface object.
+
+    The returned value may be None, if no relations have been made yet on that interface. This is
+    because instantiating the SerializedDataInterface class requires agreeing on a schema version by
+    both sides of the relation.
+    """
+
+    with open("metadata.yaml") as f:
+        metadata = yaml.safe_load(f)
+
+    # Ensure we don't have any duplicate keys across both provides and requires
+    dupes = set.intersection(
+        set(metadata.get("provides", {}).keys()),
+        set(metadata.get("requires", {}).keys()),
+    )
+
+    if dupes:
+        raise DuplicateRelation(sorted(dupes))
+
+    relations = {**metadata.get("provides", {}), **metadata.get("requires", {})}
+
+    try:
+        interface = relations[interface_name]
+    except KeyError:
+        raise InvalidRelationName(interface_name)
+
+    if interface_name not in charm.model.relations:
+        return None
+
+    return SerializedDataInterface(
+        charm,
+        interface_name,
+        get_schema(interface["schema"]),
+        set(interface["versions"]),
+        "provides" if interface_name in metadata.get("provides", {}) else "requires",
+    )
