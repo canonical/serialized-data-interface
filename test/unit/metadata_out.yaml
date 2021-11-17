@@ -27,6 +27,25 @@ requires:
   ingress:
     interface: ingress
     schema:
+      v2:
+        requires:
+          type: object
+          properties:
+            service:
+              type: string
+            port:
+              type: integer
+            namespace:
+              type: string
+            prefix:
+              type: string
+            rewrite:
+              type: string
+          required:
+            - service
+            - port
+            - namespace
+            - prefix
       v1:
         requires:
           properties:
