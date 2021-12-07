@@ -1,9 +1,9 @@
-from typing import Dict, Optional, Set, Tuple
+from typing import Dict, Optional, Set, Tuple, Type
 
 import yaml
 from jsonschema import validate
 from ops.charm import CharmBase
-from ops.model import Application, Relation
+from ops.model import Application, BlockedStatus, Relation, StatusBase, WaitingStatus
 
 from .utils import get_schema
 
@@ -17,7 +17,19 @@ __all__ = [
 ]
 
 
-class NoCompatibleVersions(Exception):
+class SDIError(Exception):
+    status: Type[StatusBase] = BlockedStatus
+
+
+class FatalError(SDIError):
+    pass
+
+
+class MaybeFatalError(SDIError):
+    status = WaitingStatus
+
+
+class NoCompatibleVersions(FatalError):
     def __init__(self, relation, apps):
         self.relation = relation
         self.apps = ", ".join(apps)
@@ -26,7 +38,7 @@ class NoCompatibleVersions(Exception):
         return f"No compatible {self.relation} versions found for apps: {self.apps}"
 
 
-class NoSchemaDefined(Exception):
+class NoSchemaDefined(FatalError):
     def __init__(self, end):
         self.end = end
 
@@ -37,7 +49,7 @@ class NoSchemaDefined(Exception):
         )
 
 
-class NoVersionsListed(Exception):
+class NoVersionsListed(MaybeFatalError):
     def __init__(self, relation, apps):
         self.relation = relation
         self.apps = ", ".join(apps)
@@ -46,7 +58,7 @@ class NoVersionsListed(Exception):
         return f"List of {self.relation} versions not found for apps: {self.apps}"
 
 
-class AppNameOmitted(Exception):
+class AppNameOmitted(FatalError):
     def __init__(self, relation, versions):
         self.relation = relation
         self.versions = versions
@@ -60,7 +72,7 @@ class AppNameOmitted(Exception):
         )
 
 
-class InvalidAppName(Exception):
+class InvalidAppName(FatalError):
     def __init__(self, relation, app_name):
         self.relation = relation
         self.app_name = app_name
@@ -69,7 +81,7 @@ class InvalidAppName(Exception):
         return f"Application {self.app_name} not found for relation {self.relation}"
 
 
-class InvalidRelationName(Exception):
+class InvalidRelationName(FatalError):
     def __init__(self, relation):
         self.relation = relation
 
@@ -77,7 +89,7 @@ class InvalidRelationName(Exception):
         return f"Relation {self.relation} not found in metadata.yaml"
 
 
-class DuplicateRelation(Exception):
+class DuplicateRelation(FatalError):
     def __init__(self, relations):
         self.relations = relations
 
