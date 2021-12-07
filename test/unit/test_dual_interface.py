@@ -47,8 +47,8 @@ def test_dual_interface_charm():
 
     rel_data = harness.charm.interface.get_data()
     assert rel_data == {
-        (rel, app): {"bar": None} if app._is_our_app else {"foo": "bar"}
+        (rel, app): {"foo": "bar"}
         for rel in harness.model.relations["app-requires"]
         for app, bag in rel.data.items()
-        if isinstance(app, Application) and "data" in bag
+        if isinstance(app, Application) and not app._is_our_app
     }

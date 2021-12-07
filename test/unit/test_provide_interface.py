@@ -1,6 +1,5 @@
 import yaml
 from ops.charm import CharmBase
-from ops.model import Application
 from ops.testing import Harness
 
 from serialized_data_interface import SerializedDataInterface
@@ -61,13 +60,7 @@ def test_provide_one_relation():
         "secret-key": "my-secret-key",
     }
     harness.charm.interface.send_data(data)
-    rel_data = harness.charm.interface.get_data()
-    assert rel_data == {
-        (rel, app): data
-        for rel in harness.model.relations["app-provides"]
-        for app, bag in rel.data.items()
-        if isinstance(app, Application) and "data" in bag
-    }
+    assert harness.charm.interface.get_data() == {}
 
 
 def test_provide_many_relations():
@@ -104,10 +97,4 @@ def test_provide_many_relations():
         "secret-key": "my-secret-key",
     }
     harness.charm.interface.send_data(data)
-    rel_data = harness.charm.interface.get_data()
-    assert rel_data == {
-        (rel, app): data
-        for rel in harness.model.relations["app-provides"]
-        for app, bag in rel.data.items()
-        if isinstance(app, Application) and "data" in bag
-    }
+    assert harness.charm.interface.get_data() == {}

@@ -158,16 +158,12 @@ class SerializedDataInterface:
             (relation, app): yaml.safe_load(bag["data"])
             for relation in self._relations
             for app, bag in relation.data.items()
-            if isinstance(app, Application) and "data" in bag
+            if isinstance(app, Application) and not app._is_our_app and "data" in bag
         }
 
         for (rel, app), datum in data.items():
             if datum:
-                schema = self.schema[self.versions[rel.app.name]]
-                if app._is_our_app:
-                    schema = schema[self.end]
-                else:
-                    schema = schema[other]
+                schema = self.schema[self.versions[app.name]][other]
 
                 validate(instance=datum, schema=schema)
 
