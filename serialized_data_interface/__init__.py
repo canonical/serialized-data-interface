@@ -101,8 +101,11 @@ class SerializedDataInterface:
         versions: Set[str],
         end: str,
     ):
-        for relation in charm.model.relations[relation_name]:
-            relation.data[charm.app]["_supported_versions"] = yaml.dump(list(versions))
+        if charm.unit.is_leader():
+            for relation in charm.model.relations[relation_name]:
+                relation.data[charm.app]["_supported_versions"] = yaml.dump(
+                    list(versions)
+                )
 
         others = {
             app.name: bag.get("_supported_versions")
@@ -154,11 +157,19 @@ class SerializedDataInterface:
             "requires": "provides",
         }[self.end]
 
+        # The app data set by our own leader is only readable by the leader
+        # (for whatever reason). So, to avoid errors on non-leaders, we have
+        # to filter it out when reading the data.
+        is_leader = self.charm.unit.is_leader()
         data = {
             (relation, app): yaml.safe_load(bag["data"])
             for relation in self._relations
             for app, bag in relation.data.items()
-            if isinstance(app, Application) and "data" in bag
+            if (
+                isinstance(app, Application)
+                and (is_leader or not app._is_our_app)
+                and "data" in bag
+            )
         }
 
         for (rel, app), datum in data.items():
