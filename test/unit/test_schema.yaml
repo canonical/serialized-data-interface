@@ -10,6 +10,11 @@ v1:
         type: string
       secret-key:
         type: string
+  requires:
+    type: object
+    properties:
+      response:
+        type: string
 v2:
   provides:
     required: [foo]

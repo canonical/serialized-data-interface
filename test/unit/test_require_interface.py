@@ -1,7 +1,7 @@
 import pytest
 import yaml
 from ops.charm import CharmBase
-from ops.model import Application
+from ops.model import Application, RelationDataError
 from ops.testing import Harness
 
 import serialized_data_interface as sdi
@@ -90,3 +90,59 @@ def test_version_mismatch():
     )
     with pytest.raises(sdi.NoCompatibleVersions):
         harness.begin()
+
+
+def test_not_leader():
+    received_data = {
+        "service": "my-service",
+        "port": 4242,
+        "access-key": "my-access-key",
+        "secret-key": "my-secret-key",
+    }
+    sent_data = {"response": "ok"}
+
+    harness = Harness(
+        RequireCharm,
+        meta="""
+        name: test-app
+        requires:
+            app-requires:
+                interface: serialized-data
+        """,
+    )
+    harness.set_leader(False)
+    rel_id = harness.add_relation("app-requires", "foo")
+    harness.add_relation_unit(rel_id, "foo/0")
+    harness.update_relation_data(
+        rel_id,
+        "foo",
+        {
+            "_supported_versions": yaml.dump(["v1"]),
+            "data": yaml.dump(received_data),
+        },
+    )
+    harness.begin()
+
+    # confirm that reading remote data doesn't require leadership
+    rel = harness.charm.model.get_relation("app-requires", rel_id)
+    assert harness.charm.interface.get_data() == {
+        (rel, rel.app): received_data,
+    }
+
+    # confirm that sending data still requires leadership
+    with pytest.raises(RelationDataError):
+        harness.charm.interface.send_data(sent_data)
+    harness.set_leader(True)
+    harness.charm.interface.send_data(sent_data)
+
+    # confirm that leader can see sent data
+    assert harness.charm.interface.get_data() == {
+        (rel, rel.app): received_data,
+        (rel, harness.charm.app): sent_data,
+    }
+
+    # confirm that non-leader cannot see sent data
+    harness.set_leader(False)
+    assert harness.charm.interface.get_data() == {
+        (rel, rel.app): received_data,
+    }
