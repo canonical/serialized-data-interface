@@ -1,9 +1,9 @@
-import pytest
-import yaml
 from unittest.mock import MagicMock
 
+import pytest
+import yaml
 from ops.charm import CharmBase
-from ops.model import Application, RelationDataError, ModelError
+from ops.model import Application, ModelError, RelationDataError
 from ops.testing import Harness
 
 import serialized_data_interface as sdi
