@@ -111,7 +111,7 @@ class SerializedDataInterface:
             app.name: bag.get("_supported_versions")
             for relation in charm.model.relations[relation_name]
             for app, bag in relation.data.items()
-            if isinstance(app, Application) and not app._is_our_app
+            if isinstance(app, Application) and app.name and not app._is_our_app
         }
 
         unversioned = [name for name, versions in others.items() if versions is None]

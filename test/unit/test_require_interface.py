@@ -1,7 +1,9 @@
 import pytest
 import yaml
+from unittest.mock import MagicMock
+
 from ops.charm import CharmBase
-from ops.model import Application, RelationDataError
+from ops.model import Application, RelationDataError, ModelError
 from ops.testing import Harness
 
 import serialized_data_interface as sdi
@@ -146,3 +148,29 @@ def test_not_leader():
     assert harness.charm.interface.get_data() == {
         (rel, rel.app): received_data,
     }
+
+
+def test_missing_remote_app_name():
+    exploding_bag = MagicMock()
+    exploding_bag.__getitem__.side_effect = ModelError(
+        b'ERROR "" is not a valid unit or application\n'
+    )
+    exploding_bag.copy.return_value = exploding_bag
+
+    harness = Harness(
+        RequireCharm,
+        meta="""
+        name: test-app
+        requires:
+            app-requires:
+                interface: serialized-data
+        """,
+    )
+    harness.set_leader(False)
+    rel_id = harness.add_relation("app-requires", "")
+    # not ideal, but I couldn't get it to work w/ harness.update_relation_data()
+    # due to it doing several copy operations internally
+    harness._backend._relation_data[rel_id][""] = exploding_bag
+
+    # confirm that setting up the charm does not explode
+    harness.begin()
