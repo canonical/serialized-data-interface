@@ -161,7 +161,7 @@ class MockRemoteRelationMixin:
             super().wrap(relation, data)
         # Updating the relation data directly doesn't trigger hooks, so we have
         # to call update_relation_data explicitly to trigger them.
-        for entity in (self.charm.app, self.charm.unit):
+        for entity in (self.app, self.unit):
             if entity in data:
                 self.harness.update_relation_data(
                     relation.id,
