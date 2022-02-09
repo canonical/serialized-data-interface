@@ -145,9 +145,9 @@ class SerializedDataInterface:
 
         If not the leader, does nothing.
         """
-        if self.charm.unit.is_leader():
+        if self.unit.is_leader():
             serialized = yaml.safe_dump(list(self.versions))
-            relation.data[self.charm.app][utils.VERSION_KEY] = serialized
+            relation.data[self.app][utils.VERSION_KEY] = serialized
 
     def __repr__(self):
         return (
@@ -172,8 +172,8 @@ class SerializedDataInterface:
                 rel_data = self.unwrap(relation)
                 if rel_data[relation.app]:
                     data[(relation, relation.app)] = rel_data[relation.app]
-                if self.charm.unit.is_leader() and rel_data[self.charm.app]:
-                    data[(relation, self.charm.app)] = rel_data[self.charm.app]
+                if self.unit.is_leader() and rel_data[self.app]:
+                    data[(relation, self.app)] = rel_data[self.app]
             except errors.IncompleteRelation:
                 continue
         return data
@@ -251,7 +251,7 @@ class SerializedDataInterface:
         """
         if not relation.app or not relation.app.name:
             # Handle edge case where remote app name can be missing.
-            return {relation.app: {}, self.charm.app: {}, self.charm.unit: {}}
+            return {relation.app: {}, self.app: {}, self.unit: {}}
         version = self.get_version(relation)
         unwrapped: dict = {}
         for entity, data in relation.data.items():
