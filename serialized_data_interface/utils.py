@@ -7,11 +7,21 @@ from zipfile import ZipFile, ZipInfo
 import requests
 import yaml
 
+VERSION_KEY = "_supported_versions"
+ROLE_MAP = {
+    "provides": ("provides", "requires"),
+    "requires": ("requires", "provides"),
+    "peers": ("peers", "peers"),
+}
+
 
 # Custom ZipFile class due to extractall not keeping file permissions
 # Official Python bug: https://bugs.python.org/issue15795
 class ZipFileWithPermissions(ZipFile):
+    """Wrapper around ZipFile which preserves file permissions."""
+
     def extract(self, member, path=None, pwd=None):
+        """Extract a single member, preserving file permissions."""
         if not isinstance(member, ZipInfo):
             member = self.getinfo(member)
 
@@ -25,6 +35,7 @@ class ZipFileWithPermissions(ZipFile):
         return ret_val
 
     def extractall(self, path=None, members=None, pwd=None):
+        """Extract all content, preserving file permissions."""
         if members is None:
             members = self.namelist()
 
@@ -39,7 +50,6 @@ class ZipFileWithPermissions(ZipFile):
 
 def get_schema(schema):
     """Ensures schema is retrieved if necessary, then loads it."""
-
     if isinstance(schema, str):
         h = hashlib.md5()
         h.update(schema.encode("utf-8"))
@@ -63,8 +73,7 @@ def get_schema(schema):
 
 
 def _get_schema_response_from_remote(url: str) -> requests.Response:
-    """
-    Returns a schema response object from a remote location, observing proxy settings if available
+    """Returns a schema response object from a remote location, observing proxy settings.
 
     Raises for status if unsuccessful.
 
@@ -86,7 +95,7 @@ def _get_schema_response_from_remote(url: str) -> requests.Response:
 
 
 def _get_proxy_settings_from_env() -> dict:
-    """Returns proxy settings dict inferred from environment"""
+    """Returns proxy settings dict inferred from environment."""
     proxies = {}
     proxies["http"] = (
         os.environ.get("JUJU_CHARM_HTTP_PROXY") or os.environ.get("HTTP_PROXY") or None

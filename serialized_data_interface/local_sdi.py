@@ -10,6 +10,7 @@ from .utils import ZipFileWithPermissions, get_schema
 
 
 def create_new_metadata(metadata):
+    """Modifies metadata in place to in-line remote schema references."""
     for name, interface in metadata.get("provides", {}).items():
         if "schema" in metadata["provides"][name]:
             metadata["provides"][name]["schema"] = get_schema(interface["schema"])
@@ -22,6 +23,7 @@ def create_new_metadata(metadata):
 
 
 def change_zip_file(charm_name, metadata, charm_path="."):
+    """Inject the modified metadata into a built charm."""
     charm_zip = f"{charm_path}/{charm_name}.charm"
 
     with TemporaryDirectory() as temp_dir:
@@ -42,6 +44,7 @@ def change_zip_file(charm_name, metadata, charm_path="."):
 
 
 def main(charm_path="."):
+    """Main entry point."""
     with open(f"{charm_path}/metadata.yaml", "r") as metadata_file:
         metadata = yaml.safe_load(metadata_file)
 
