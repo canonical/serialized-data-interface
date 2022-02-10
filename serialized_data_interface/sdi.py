@@ -132,13 +132,13 @@ class SerializedDataInterface:
         self, version: Union[int, str], entity: Union[Application, Unit]
     ):
         if entity is self.app:
-            return self.schemas[version][self.role].get("app", {})
+            return self.schemas[version].get(self.role, {}).get("app", {})
         elif entity is self.unit:
-            return self.schemas[version][self.role].get("unit", {})
+            return self.schemas[version].get(self.role, {}).get("unit", {})
         elif isinstance(entity, Application):
-            return self.schemas[version][self.remote_role].get("app", {})
+            return self.schemas[version].get(self.remote_role, {}).get("app", {})
         elif isinstance(entity, Unit):
-            return self.schemas[version][self.remote_role].get("unit", {})
+            return self.schemas[version].get(self.remote_role, {}).get("unit", {})
 
     def send_versions(self, relation: Relation):
         """Send the list of supported versions to the related app.
