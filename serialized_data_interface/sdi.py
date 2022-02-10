@@ -329,9 +329,15 @@ def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
     SerializedDataInterface class requires agreeing on a schema version by
     both sides of the relation.
     """
+    # Can't just use charm.meta.relations because it doesn't preserve unknown
+    # fields (i.e., "schema" and "versions").
+    with open("metadata.yaml") as f:
+        metadata = yaml.safe_load(f)
+
     return {
         endpoint: get_interface(charm, endpoint)
-        for endpoint in charm.meta.relations.keys()
+        for endpoint, endpoint_info in charm.meta.relations.items()
+        if "schema" in metadata[endpoint_info.ROLE.name][endpoint]
     }
 
 
@@ -344,7 +350,8 @@ def get_interface(charm, endpoint: str) -> Optional[SerializedDataInterface]:
     if endpoint not in charm.meta.relations:
         raise errors.UnknownEndpointError(endpoint)
 
-    # Can't use charm.meta.relations because it doesn't preserve unknown fields.
+    # Can't just use charm.meta.relations because it doesn't preserve unknown
+    # fields (i.e., "schema" and "versions").
     with open("metadata.yaml") as f:
         metadata = yaml.safe_load(f)
 
