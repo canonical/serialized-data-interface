@@ -337,7 +337,7 @@ def get_interfaces(charm) -> Dict[str, Optional[SerializedDataInterface]]:
     return {
         endpoint: get_interface(charm, endpoint)
         for endpoint, endpoint_info in charm.meta.relations.items()
-        if "schema" in metadata[endpoint_info.ROLE.name][endpoint]
+        if "schema" in metadata[endpoint_info.role.name][endpoint]
     }
 
 
