@@ -183,16 +183,20 @@ class SerializedDataInterface:
         either the data given has to be compatible with any established relation versions.
         """
         if not app_name:
+            # Use all relations since we don't have an app name to filter by.
+            relations = self._relations
+            # Verify that we don't need an app name due to only a single version being in use.
             versions = {self.get_version(relation) for relation in self._relations}
             if len(versions) > 1:
                 raise errors.AppNameOmittedError(self.endpoint, list(versions))
-            relations = self._relations
         else:
+            # Filter the set of relations by app name.
             relations = [
                 relation
                 for relation in self._relations
                 if relation.app.name == app_name
             ]
+            # Verify that the app name given was a valid one and that we have relations to send to.
             if not relations:
                 raise errors.InvalidAppNameError(self.endpoint, app_name)
         data = {self.app: data}
