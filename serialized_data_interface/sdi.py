@@ -185,14 +185,18 @@ class SerializedDataInterface:
         application. Otherwise, it will be sent to all relations. Note that this means that
         either the data given has to be compatible with any established relation versions.
         """
-        if app_name and not any(
-            relation.app.name == app_name for relation in self._relations
-        ):
-            raise errors.InvalidAppNameError(app_name)
+        if not app_name:
+            relations = self._relations
+        else:
+            relations = [
+                relation
+                for relation in self._relations
+                if relation.app.name == app_name
+            ]
+            if not relations:
+                raise errors.InvalidAppNameError(app_name)
         data = {self.app: data}
-        for relation in self._relations:
-            if app_name and relation.app.name != app_name:
-                continue
+        for relation in relations:
             self.wrap(relation, data)
 
     def _deserialize_flat(
