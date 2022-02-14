@@ -186,6 +186,9 @@ class SerializedDataInterface:
         either the data given has to be compatible with any established relation versions.
         """
         if not app_name:
+            versions = {self.get_version(relation) for relation in self._relations}
+            if len(versions) > 1:
+                raise errors.AppNameOmittedError(self.endpoint, list(versions))
             relations = self._relations
         else:
             relations = [

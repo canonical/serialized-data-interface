@@ -39,6 +39,22 @@ class InvalidAppNameError(SDIException):
         self.app_name = app_name
 
 
+class AppNameOmittedError(SDIException):
+    """The send_data method was called without an app name but versions don't match."""
+    def __init__(self, endpoint, versions):
+        self.endpoint = endpoint
+        self.versions = versions
+        self.args = [
+            "Sending data across multiple relations with different "
+            "schema versions requires `app_name` to be passed in. "
+            f"Found versions {versions} for relation {endpoint}"
+        ]
+
+
+# Deprecated alias.
+AppNameOmitted = AppNameOmittedError
+
+
 class UnknownEndpointError(SDIException):
     """The given relation endpoint name is was not found in metadata.yaml."""
 
