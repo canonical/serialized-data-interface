@@ -129,7 +129,7 @@ class EndpointWrapper(Object):
             try:
                 return yaml.safe_load(self.SCHEMA.read_text())
             except (OSError, yaml.YAMLError) as e:
-                raise errors.SchemaParseError() from e
+                raise errors.SchemaParseError(str(e)) from e
         else:
             raise errors.SchemaError(
                 f"SCHEMA type must be Path or dict, not {type(self.SCHEMA)}"
@@ -271,7 +271,6 @@ class EndpointWrapper(Object):
         will always be an empty dict.  See: https://bugs.launchpad.net/juju/+bug/1958530
 
         Can raise:
-            * IncompleteRelation
             * IncompatibleVersionsError
             * RelationParseError
             * RelationDataError

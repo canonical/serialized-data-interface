@@ -1,6 +1,6 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
-from typing import Set, Union
+from typing import List, Set, Union
 
 from ops.model import Application, Relation, Unit
 
@@ -34,21 +34,24 @@ class InvalidAppNameError(SDIException):
         app_name: Name of the app which is invalid.
     """
 
-    def __init__(self, app_name: str):
+    def __init__(self, endpoint: str, app_name: str):
+        self.args = (f"Application {app_name} not found for relation {endpoint}",)
         super().__init__(app_name)
+        self.endpoint = endpoint
         self.app_name = app_name
 
 
 class AppNameOmittedError(SDIException):
     """The send_data method was called without an app name but versions don't match."""
-    def __init__(self, endpoint, versions):
-        self.endpoint = endpoint
-        self.versions = versions
-        self.args = [
+
+    def __init__(self, endpoint: str, versions: List[str]):
+        self.args = (
             "Sending data across multiple relations with different "
             "schema versions requires `app_name` to be passed in. "
-            f"Found versions {versions} for relation {endpoint}"
-        ]
+            f"Found versions {versions} for relation {endpoint}",
+        )
+        self.endpoint = endpoint
+        self.versions = versions
 
 
 # Deprecated alias.
@@ -57,6 +60,10 @@ AppNameOmitted = AppNameOmittedError
 
 class UnknownEndpointError(SDIException):
     """The given relation endpoint name is was not found in metadata.yaml."""
+
+    def __init__(self, endpoint: str):
+        self.args = (f"Relation {endpoint} not found in metadata.yaml",)
+        self.endpoint = endpoint
 
 
 # Deprecated alias.
@@ -78,9 +85,10 @@ class InvalidSchemaError(SchemaError):
         version: The version of the schema which was invalid.
     """
 
-    def __init__(self, version: Union[int, str]):
-        super().__init__(version)
+    def __init__(self, version: Union[int, str], reason: str):
+        super().__init__(f"Schema version {version} is invalid: {reason}")
         self.version = version
+        self.reason = reason
 
 
 class InvalidSchemaVersionError(InvalidSchemaError):
@@ -89,6 +97,10 @@ class InvalidSchemaVersionError(InvalidSchemaError):
     Attributes:
         version: The schema version which was invalid.
     """
+
+    def __init__(self, version: Union[int, str]):
+        self.args = (f"{version} is not an int or 'vX' string",)
+        self.version = version
 
 
 class RelationException(SDIException):
@@ -102,13 +114,15 @@ class RelationException(SDIException):
 class UnversionedRelation(RelationException):
     """The relation is not yet complete due to missing remote version info."""
 
+    def __init__(self, relation: Relation):
+        super().__init__(relation)
+        self.args = (
+            f"List of {relation} versions not found for apps: {relation.app.name}",  # type: ignore
+        )
+
 
 # Deprecated alias.
 NoVersionsListed = UnversionedRelation
-
-
-class IncompleteRelation(RelationException):
-    """The relation is not yet complete due to missing remote data."""
 
 
 class RelationError(RelationException):
@@ -131,7 +145,8 @@ class IncompatibleVersionsError(RelationError):
         remote_versions: Set[Union[int, str]],
     ):
         self.args = (
-            f"{relation.name}:{relation.id} {list(local_versions)} {list(remote_versions)}",
+            f"No compatible {relation.name} versions found "  # type: ignore
+            f"for apps: {relation.app.name}",  # (relation.app doesn't play well with mypy)
         )
         self.relation = relation
         self.local_versions = local_versions
@@ -153,7 +168,10 @@ class RelationParseError(RelationError):
 
     def __init__(self, relation: Relation, entity: Union[Application, Unit], key: str):
         super().__init__(relation)
-        self.args = (f"{relation.name}:{relation.id} {entity.name} '{key}'",)
+        self.args = (
+            f"Failed to deserialize data on {relation.name}:{relation.id} "
+            f"from {entity.name} at '{key}'",
+        )
         self.relation = relation
         self.entity = entity
         self.key = key
@@ -169,7 +187,9 @@ class RelationDataError(RelationError):
 
     def __init__(self, relation: Relation, entity: Union[Application, Unit]):
         super().__init__(relation)
-        self.args = (f"{relation.name}:{relation.id} {entity.name}",)
+        self.args = (
+            f"Failed to validate data on {relation.name}:{relation.id} from {entity.name}",
+        )
         self.relation = relation
         self.entity = entity
 
@@ -184,7 +204,9 @@ class MissingSchemaError(SchemaError, RelationDataError):
     """
 
     def __init__(self, relation: Relation, role: str, entity: Union[Application, Unit]):
-        self.args = (f"{relation.name}:{relation.id} {role} {entity.name}",)
+        self.args = (
+            f"No {role} schema found for data on {relation.name}:{relation.id} from {entity.name}",
+        )
         self.relation = relation
         self.role = role
         self.entity = entity
@@ -192,6 +214,12 @@ class MissingSchemaError(SchemaError, RelationDataError):
 
 class RelationPermissionError(RelationDataError):
     """An attempt to write data to a disallowed bucket."""
+
+    def __init__(self, relation: Relation, entity: Union[Application, Unit]):
+        self.args = (
+            f"Unable to write data to {relation.name}:{relation.id} for {entity.name}",
+        )
+        self.relation = relation
 
 
 class NoSchemaDefined(SDIException):
@@ -203,6 +231,9 @@ class NoSchemaDefined(SDIException):
     """
 
     def __init__(self, version: Union[int, str], role: str):
-        super().__init__(f"{version} {role}")
+        self.args = (
+            f"Calling send_data from the {role} end of a relation "
+            f"requires defining a {role} section in the schema.",
+        )
         self.version = version
         self.role = role

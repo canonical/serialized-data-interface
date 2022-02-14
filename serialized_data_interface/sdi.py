@@ -62,7 +62,7 @@ class SerializedDataInterface:
             try:
                 jsonschema.validators.validator_for(schema).check_schema(schema)
             except jsonschema.SchemaError as e:
-                raise errors.InvalidSchemaError(version) from e
+                raise errors.InvalidSchemaError(version, str(e)) from e
 
     @property
     def app(self):
@@ -168,14 +168,11 @@ class SerializedDataInterface:
         """
         data = {}
         for relation in self._relations:
-            try:
-                rel_data = self.unwrap(relation)
-                if rel_data[relation.app]:
-                    data[(relation, relation.app)] = rel_data[relation.app]
-                if self.unit.is_leader() and rel_data[self.app]:
-                    data[(relation, self.app)] = rel_data[self.app]
-            except errors.IncompleteRelation:
-                continue
+            rel_data = self.unwrap(relation)
+            if rel_data[relation.app]:
+                data[(relation, relation.app)] = rel_data[relation.app]
+            if self.unit.is_leader() and rel_data[self.app]:
+                data[(relation, self.app)] = rel_data[self.app]
         return data
 
     def send_data(self, data: dict, app_name: str = None):
@@ -197,7 +194,7 @@ class SerializedDataInterface:
                 if relation.app.name == app_name
             ]
             if not relations:
-                raise errors.InvalidAppNameError(app_name)
+                raise errors.InvalidAppNameError(self.endpoint, app_name)
         data = {self.app: data}
         for relation in relations:
             self.wrap(relation, data)
@@ -251,7 +248,6 @@ class SerializedDataInterface:
         will always be an empty dict.  See: https://bugs.launchpad.net/juju/+bug/1958530
 
         Can raise:
-            * IncompleteRelation
             * IncompatibleVersionsError
             * RelationParseError
             * RelationDataError
