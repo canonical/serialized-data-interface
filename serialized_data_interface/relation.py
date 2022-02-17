@@ -189,6 +189,10 @@ class EndpointWrapper(Object):
         """
         if relation is None:
             return any(self.is_available(relation) for relation in self.relations)
+        if relation.app.name == "":  # type: ignore
+            # Juju doesn't provide JUJU_REMOTE_APP during relation-broken
+            # hooks. See https://github.com/canonical/operator/issues/693
+            return False
         try:
             self._sdi.get_version(relation)
         except errors.RelationException:
@@ -204,6 +208,10 @@ class EndpointWrapper(Object):
         """
         if relation is None:
             return any(self.is_ready(relation) for relation in self.relations)
+        if relation.app.name == "":  # type: ignore
+            # Juju doesn't provide JUJU_REMOTE_APP during relation-broken
+            # hooks. See https://github.com/canonical/operator/issues/693
+            return False
         try:
             data = self.unwrap(relation)
         except errors.RelationException:
@@ -218,6 +226,10 @@ class EndpointWrapper(Object):
         """Checks whether the given relation, or any relation if not specified, has an error."""
         if relation is None:
             return any(self.is_failed(relation) for relation in self.relations)
+        if relation.app.name == "":  # type: ignore
+            # Juju doesn't provide JUJU_REMOTE_APP during relation-broken
+            # hooks. See https://github.com/canonical/operator/issues/693
+            return False
         try:
             self.unwrap(relation)
         except errors.RelationError as e:
