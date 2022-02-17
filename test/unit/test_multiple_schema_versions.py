@@ -1,6 +1,5 @@
 import pytest
 import yaml
-from jsonschema.exceptions import ValidationError
 from ops.charm import CharmBase
 from ops.testing import Harness
 
@@ -56,7 +55,7 @@ def test_send_data_multiple_versions():
         "secret-key": "my-secret-key",
     }
     harness.update_relation_data(rel_id1, "appv1", {"data": yaml.dump(data)})
-    harness.update_relation_data(rel_id2, "appv2", {"data": yaml.dump(data)})
+    harness.update_relation_data(rel_id2, "appv2", {"data": yaml.dump({"bar": None})})
 
     harness.charm.interface.send_data(data, "appv1")
     harness.charm.interface.send_data(
@@ -65,13 +64,9 @@ def test_send_data_multiple_versions():
     )
 
     # Can't send for an invalid app
-    with pytest.raises(sdi.InvalidAppName):
+    with pytest.raises(sdi.errors.InvalidAppNameError):
         harness.charm.interface.send_data({}, "invalid-app")
 
-    # Can't send across all apps if there's multiple versions
-    with pytest.raises(sdi.AppNameOmitted):
-        harness.charm.interface.send_data(data)
-
     # Can't send invalid data
-    with pytest.raises(ValidationError):
-        harness.charm.interface.send_data({}, "appv2")
+    with pytest.raises(sdi.errors.RelationDataError):
+        harness.charm.interface.send_data({"bad": "guy"}, "appv2")

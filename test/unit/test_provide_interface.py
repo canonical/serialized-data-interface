@@ -3,7 +3,7 @@ from ops.charm import CharmBase
 from ops.model import Application
 from ops.testing import Harness
 
-from serialized_data_interface import SerializedDataInterface
+from serialized_data_interface.sdi import SerializedDataInterface
 
 
 class ProvideCharm(CharmBase):

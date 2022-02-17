@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 from ops.charm import CharmBase
-from ops.model import Application, ModelError, RelationDataError
+from ops.model import Application, ModelError
 from ops.testing import Harness
 
 import serialized_data_interface as sdi
@@ -20,6 +20,10 @@ class RequireCharm(CharmBase):
                 {"v1"},
                 "requires",
             )
+        # Since we're not using get_interface(), we need to replicate the automatic behaviors.
+        for relation in self.model.relations["app-requires"]:
+            self.interface.send_versions(relation)
+        self.interface.get_data()
 
 
 def test_require_no_relation():
@@ -132,7 +136,7 @@ def test_not_leader():
     }
 
     # confirm that sending data still requires leadership
-    with pytest.raises(RelationDataError):
+    with pytest.raises(sdi.errors.RelationPermissionError):
         harness.charm.interface.send_data(sent_data)
     harness.set_leader(True)
     harness.charm.interface.send_data(sent_data)

@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "serialized_data_interface"
-version = "0.3.5"
+version = "0.4.0"
 description = "Serialized Data Interface for Juju Operators"
 authors = [
     "Dominik Fleischmann <dominik.fleischmann@canonical.com>",
@@ -31,6 +31,11 @@ requests = "2.25"
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
 flake8 = "^3.8"
+flake8-builtins = "^1.5.3"
+flake8-copyright = "^0.2.2"
+flake8-docstrings = "^1.6.0"
+flake8-polyfill = "^1.0.2"
+pep8-naming = "^0.12.1"
 isort = "^5.9"
 mdformat = "^0.7"
 mdformat-gfm = "^0.3"
@@ -40,6 +45,7 @@ pytest-mock = "^3.6"
 types-jsonschema = "^3.2"
 types-pyyaml = "^5.4"
 types-requests = "^2.25"
+ipdb = "^0.13.9"
 
 [tool.isort]
 profile = "black"
