@@ -269,7 +269,7 @@ class EndpointWrapper(Object):
         self._sdi.send_versions(relation)
 
     def _send_auto_data(self, relation):
-        if self.auto_data and self.is_available(relation):
+        if self.auto_data and self.is_available(relation) and self.unit.is_leader():
             self.wrap(relation, self.auto_data)
 
     def unwrap(self, relation: Relation):
