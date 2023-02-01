@@ -1,3 +1,6 @@
+# Copyright 2023 Canonical Ltd.
+# See LICENSE file for licensing details.
+
 from functools import cached_property
 from typing import Dict, Optional, Set, Tuple, Union
 
