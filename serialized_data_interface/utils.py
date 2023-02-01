@@ -52,26 +52,40 @@ class ZipFileWithPermissions(ZipFile):
 
 
 def get_schema(schema):
-    """Ensures schema is retrieved if necessary, then loads it."""
+    """Ensures schema is retrieved if necessary, then loads it.
+
+    This function renders the schema defined by `schema`, if required, returning a dict of the
+    schema.  The input schema cam be:
+    * remotely by a URL with a leading schema (http://, https://)
+    * locally by a file with a relative path inside the packed charm, eg ./src/my_schema.yaml
+    * a dict of already-rendered schema
+
+    If the schema is already a dict representing the schema, this is a no-op.
+    """
     if isinstance(schema, str):
-        h = hashlib.md5()
-        h.update(schema.encode("utf-8"))
-        p = Path("/tmp") / h.hexdigest()
-        if p.exists():
-            return yaml.safe_load(p.read_text())
-        else:
-            for _ in range(30):
-                try:
-                    response = _get_schema_response_from_remote(schema)
-                    break
-                except requests.RequestException:
-                    time.sleep(5)
+        # Handle a remote schema that we need to fetch
+        if schema.startswith(("http://", "https://")):
+            h = hashlib.md5()
+            h.update(schema.encode("utf-8"))
+            p = Path("/tmp") / h.hexdigest()
+            if p.exists():
+                return yaml.safe_load(p.read_text())
             else:
-                response = _get_schema_response_from_remote(schema)
+                for _ in range(30):
+                    try:
+                        response = _get_schema_response_from_remote(schema)
+                        break
+                    except requests.RequestException:
+                        time.sleep(5)
+                else:
+                    response = _get_schema_response_from_remote(schema)
 
-            p.write_text(response.text)
-            return yaml.safe_load(response.text)
+                p.write_text(response.text)
+                return yaml.safe_load(response.text)
 
+        else:
+            # Try to handle the schema as a filename to a locally defined schema yaml file
+            return yaml.safe_load(Path(schema).read_text())
     return schema
 
 

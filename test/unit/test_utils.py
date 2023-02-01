@@ -38,6 +38,11 @@ def test_get_schema():
 
     assert schema == metadata_out["provides"]["oidc-client"]["schema"]
 
+    # With local file
+    schema = get_schema(test_schema_filename)
+
+    assert schema == test_schema
+
 
 PROXY_URLS = {i: f"http://a:800{str(i)}" for i in range(6)}
 
