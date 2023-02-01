@@ -1,18 +1,32 @@
+# some comments that we don't want to lose
+# content from here to the provides/requires does not affect SDI, but it commonly seen in metadata.yaml files
+name: some-awesome-charm
+summary: the awesomeest charm around
+containers:
+  my-container:
+    resource: my-image
+resources:
+  my-image:
+    type: oci-image
+    description: some image I use
+    auto-fetch: true
+    upstream-source: docker.io/not-a-real-image:latest
 provides:
   oidc-client:
     interface: oidc-client
     schema:
       v1:
         provides:
+          type: object
           properties:
             id:
               type: string
             name:
               type: string
             redirectURIs:
+              type: array
               items:
                 type: string
-              type: array
             secret:
               type: string
           required:
@@ -20,9 +34,9 @@ provides:
           - name
           - redirectURIs
           - secret
-          type: object
     versions:
     - v1
+    __schema_source: https://raw.githubusercontent.com/canonical/operator-schemas/oidc-schemas/oidc-client.yaml
 requires:
   ingress:
     interface: ingress
@@ -42,25 +56,26 @@ requires:
             rewrite:
               type: string
           required:
-            - service
-            - port
-            - namespace
-            - prefix
+          - service
+          - port
+          - namespace
+          - prefix
       v1:
         requires:
+          type: object
           properties:
+            service:
+              type: string
             port:
               type: integer
             prefix:
               type: string
             rewrite:
               type: string
-            service:
-              type: string
           required:
           - service
           - port
           - prefix
-          type: object
     versions:
     - v1
+    __schema_source: https://raw.githubusercontent.com/canonical/operator-schemas/service-mesh-schemas/ingress.yaml

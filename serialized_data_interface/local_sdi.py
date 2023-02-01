@@ -2,27 +2,43 @@
 # See LICENSE file for licensing details.
 
 import os
-import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from ruamel.yaml import YAML
+import typer
 import yaml
 
 from .utils import ZipFileWithPermissions, get_schema
 
 
-def create_new_metadata(metadata):
+def localize_metadata_schema(metadata):
     """Modifies metadata in place to in-line remote schema references."""
-    for name, interface in metadata.get("provides", {}).items():
-        if "schema" in metadata["provides"][name]:
-            metadata["provides"][name]["schema"] = get_schema(interface["schema"])
-
-    for name, interface in metadata.get("requires", {}).items():
-        if "schema" in metadata["requires"][name]:
-            metadata["requires"][name]["schema"] = get_schema(interface["schema"])
+    for relation_type in ["requires", "provides"]:
+        for name, interface in metadata.get(relation_type, {}).items():
+            if "schema" in metadata[relation_type][name]:
+                metadata[relation_type][name]["__schema_source"] = metadata[
+                    relation_type
+                ][name]["schema"]
+                metadata[relation_type][name]["schema"] = get_schema(
+                    interface["schema"]
+                )
 
     return metadata
+
+
+def localize_metadata_file(metadata_path):
+    """Given a metadata file, localize any remote schema references in place."""
+    metadata_file = Path(metadata_path)
+    yaml_handler = YAML()
+    yaml_handler.preserve_quotes = True
+    metadata = yaml_handler.load(metadata_file.read_text())
+
+    localize_metadata_schema(metadata)
+
+    with open(metadata_file, "w") as fout:
+        yaml_handler.dump(metadata, fout)
 
 
 def change_zip_file(charm_name, metadata, charm_path="."):
@@ -46,20 +62,10 @@ def change_zip_file(charm_name, metadata, charm_path="."):
                         new_zip.write(filepath, filepath.relative_to(temp_dir))
 
 
-def main(charm_path="."):
-    """Main entry point."""
-    with open(f"{charm_path}/metadata.yaml", "r") as metadata_file:
-        metadata = yaml.safe_load(metadata_file)
-
-    metadata = create_new_metadata(metadata)
-
-    charm_name = metadata["name"]
-
-    change_zip_file(charm_name, metadata, charm_path)
+def main(metadata_path="./metadata.yaml"):
+    """Given a metadata file, localize any remote schema references in place."""
+    localize_metadata_file(metadata_path)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
-    else:
-        main(".")
+    typer.run(main)

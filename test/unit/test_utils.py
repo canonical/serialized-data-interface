@@ -8,10 +8,10 @@ import pytest
 import requests
 import yaml
 
-import serialized_data_interface.local_sdi as local_sdi
 from serialized_data_interface.utils import (
     _get_proxy_settings_from_env,
     _get_schema_response_from_remote,
+    get_schema,
 )
 
 
@@ -22,15 +22,19 @@ def test_get_schema():
     with open("test/unit/metadata_out.yaml") as metadata_out_file:
         metadata_out = yaml.safe_load(metadata_out_file)
 
+    test_schema_filename = "test/unit/test_schema.yaml"
+    with open(test_schema_filename) as test_schema_file:
+        test_schema = yaml.safe_load(test_schema_file)
+
     schema_url = metadata_in["provides"]["oidc-client"]["schema"]
 
     # With URL
-    schema = local_sdi.get_schema(schema_url)
+    schema = get_schema(schema_url)
 
     assert schema == metadata_out["provides"]["oidc-client"]["schema"]
 
     # With Dict
-    schema = local_sdi.get_schema(metadata_out["provides"]["oidc-client"]["schema"])
+    schema = get_schema(metadata_out["provides"]["oidc-client"]["schema"])
 
     assert schema == metadata_out["provides"]["oidc-client"]["schema"]
 

@@ -2,6 +2,9 @@
 # See LICENSE file for licensing details.
 
 import os
+from pathlib import Path
+import shutil
+from tempfile import TemporaryDirectory
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import yaml
@@ -9,21 +12,25 @@ import yaml
 import serialized_data_interface.local_sdi as local_sdi
 
 
-def test_create_new_metadata():
-    with open("test/unit/metadata_in.yaml") as metadata_in_file:
-        metadata_in = yaml.safe_load(metadata_in_file)
-    new_metadata = local_sdi.create_new_metadata(metadata_in)
+METADATA_IN = "test/unit/metadata_in.yaml"
+METADATA_OUT = "test/unit/metadata_out.yaml"
 
-    with open("test/unit/metadata_out.yaml") as metadata_out_file:
+
+def test_localize_metadata_schema():
+    with open(METADATA_IN) as metadata_in_file:
+        metadata_in = yaml.safe_load(metadata_in_file)
+    new_metadata = local_sdi.localize_metadata_schema(metadata_in)
+
+    with open(METADATA_OUT) as metadata_out_file:
         metadata_out = yaml.safe_load(metadata_out_file)
     assert metadata_out == new_metadata
 
 
 def test_change_zip_file():
     with ZipFile("test.charm", "w", ZIP_DEFLATED) as test_zip:
-        test_zip.write("test/unit/metadata_in.yaml", "metadata.yaml")
+        test_zip.write(METADATA_IN, "metadata.yaml")
 
-    with open("test/unit/metadata_out.yaml") as metadata_out_file:
+    with open(METADATA_OUT) as metadata_out_file:
         metadata_out = yaml.safe_load(metadata_out_file)
 
     local_sdi.change_zip_file("test", metadata_out)
@@ -34,3 +41,19 @@ def test_change_zip_file():
     assert metadata_out == zip_metadata
 
     os.remove("test.charm")
+
+
+def test_localize_metadata_file():
+
+    with TemporaryDirectory() as temp_dir:
+        metadata_in_file = os.path.join(temp_dir, "metadata_in.yaml")
+        shutil.copy(METADATA_IN, metadata_in_file)
+
+        local_sdi.localize_metadata_file(metadata_in_file)
+
+        # Don't load this as a yaml, just as string, so that we don't ignore any changes to
+        # key order or comments
+        metadata_localized_as_str = Path(metadata_in_file).read_text()
+        metadata_out_as_str = Path(METADATA_OUT).read_text()
+
+        assert metadata_localized_as_str == metadata_out_as_str
