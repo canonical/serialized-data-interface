@@ -1,3 +1,4 @@
+# Copyright 2023 Canonical Ltd.
 import pytest
 import yaml
 from ops.charm import CharmBase
