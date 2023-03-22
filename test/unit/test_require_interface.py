@@ -1,3 +1,4 @@
+# Copyright 2023 Canonical Ltd.
 from unittest.mock import MagicMock
 
 import pytest

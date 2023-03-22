@@ -1,3 +1,4 @@
+# Copyright 2023 Canonical Ltd.
 import os
 from zipfile import ZIP_DEFLATED, ZipFile
 

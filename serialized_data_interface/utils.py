@@ -1,3 +1,4 @@
+# Copyright 2023 Canonical Ltd.
 import hashlib
 import os
 import time

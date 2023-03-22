@@ -1,3 +1,4 @@
+# Copyright 2023 Canonical Ltd.
 from functools import cached_property
 from typing import Dict, Optional, Set, Tuple, Union
 
