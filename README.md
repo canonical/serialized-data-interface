@@ -1,4 +1,3 @@
-# Run the CI!
 # Serialized Data Interface Library
 
 https://pypi.org/project/serialized-data-interface/
