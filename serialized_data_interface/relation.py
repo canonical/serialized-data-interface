@@ -9,7 +9,7 @@ of that for ease of use.
 import logging
 from functools import cached_property
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import yaml
 from ops.charm import CharmBase
@@ -63,7 +63,7 @@ class EndpointWrapper(Object):
 
     on = EndpointWrapperEvents()
 
-    def __init__(self, charm: CharmBase, endpoint: str = None):
+    def __init__(self, charm: CharmBase, endpoint: Optional[str] = None):
         """Constructor for EndpointWrapper.
 
         Args:
@@ -182,7 +182,7 @@ class EndpointWrapper(Object):
         return ActiveStatus()
 
     @cache
-    def is_available(self, relation: Relation = None):
+    def is_available(self, relation: Optional[Relation] = None):
         """Checks whether the given relation, or any relation if not specified, is available.
 
         A given relation is available if the version negotation has succeeded.
@@ -201,7 +201,7 @@ class EndpointWrapper(Object):
             return True
 
     @cache
-    def is_ready(self, relation: Relation = None):
+    def is_ready(self, relation: Optional[Relation] = None):
         """Checks whether the given relation, or any relation if not specified, is ready.
 
         A given relation is ready if the remote side has sent valid data.
@@ -222,7 +222,7 @@ class EndpointWrapper(Object):
             )
 
     @cache
-    def is_failed(self, relation: Relation = None):
+    def is_failed(self, relation: Optional[Relation] = None):
         """Checks whether the given relation, or any relation if not specified, has an error."""
         if relation is None:
             return any(self.is_failed(relation) for relation in self.relations)
