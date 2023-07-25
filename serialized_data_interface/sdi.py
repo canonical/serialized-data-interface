@@ -24,7 +24,7 @@ class SerializedDataInterface:
         schemas: dict,
         versions: Set[Union[int, str]],
         role: str,
-        ignored_fields: Set[str] = None,
+        ignored_fields: Optional[Set[str]] = None,
     ):
         """Initialize the SDI instance.
 
@@ -106,7 +106,7 @@ class SerializedDataInterface:
         """
         local_versions = self.versions
         local_versions_parsed = self._parse_versions(local_versions)
-        remote_versions_raw = relation.data[relation.app].get(utils.VERSION_KEY)
+        remote_versions_raw = relation.data[relation.app].get(utils.VERSION_KEY)  # type: ignore
         if not remote_versions_raw:
             raise errors.UnversionedRelation(relation)
         try:
@@ -176,7 +176,7 @@ class SerializedDataInterface:
                 data[(relation, self.app)] = rel_data[self.app]
         return data
 
-    def send_data(self, data: dict, app_name: str = None):
+    def send_data(self, data: dict, app_name: Optional[str] = None):
         """Send data to related app(s).
 
         If `app_name` is given, the data will only be sent to relations with that remote
@@ -205,7 +205,10 @@ class SerializedDataInterface:
             self.wrap(relation, data)
 
     def _deserialize_flat(
-        self, relation: Relation, entity: Union[Application, Unit], data: dict
+        self,
+        relation: Relation,
+        entity: Union[Application, Unit],
+        data: RelationDataContent,
     ):
         # Deserialize "flat" schema data, where each field is serliazed directly
         # into the relation data bucket, rather than under a nested "data" field.
@@ -220,7 +223,10 @@ class SerializedDataInterface:
         return deserialized
 
     def _deserialize_nested(
-        self, relation: Relation, entity: Union[Application, Unit], data: dict
+        self,
+        relation: Relation,
+        entity: Union[Application, Unit],
+        data: RelationDataContent,
     ):
         # Deserialize "nested" schema data, where all data is serialized under
         # a single "data" key.
