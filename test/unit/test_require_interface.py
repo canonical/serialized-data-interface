@@ -93,7 +93,10 @@ def test_version_mismatch():
     with pytest.raises(sdi.NoCompatibleVersions):
         harness.begin()
 
-@pytest.mark.skip("Skipping because ops>2.x does not seem to raise an exception when the unit is not leader.")
+
+@pytest.mark.skip(
+    "Skipping because ops>2.x does not seem to raise an exception when the unit is not leader."
+)
 def test_not_leader():
     received_data = {
         "service": "my-service",
