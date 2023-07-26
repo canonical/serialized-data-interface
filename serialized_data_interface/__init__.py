@@ -1,3 +1,9 @@
+# Copyright 2023 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+# flake8: noqa: ignore=F401
+# type: ignore
+
 from typing import Dict, Optional, Set, Tuple
 
 import yaml
