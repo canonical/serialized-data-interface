@@ -173,7 +173,7 @@ def test_missing_remote_app_name():
     rel_id = harness.add_relation("app-requires", "")
     # not ideal, but I couldn't get it to work w/ harness.update_relation_data()
     # due to it doing several copy operations internally
-    harness._backend._relation_data[rel_id][""] = exploding_bag
+    harness.update_relation_data(rel_id, "", exploding_bag)
 
     # confirm that setting up the charm does not explode
     harness.begin()
