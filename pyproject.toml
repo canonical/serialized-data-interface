@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 # Pinning jsonschema because its dependencies introduced
 # a dependency of rustc, which we don't want to have installed
 # in charms that use SDI
