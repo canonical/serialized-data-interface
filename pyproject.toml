@@ -29,7 +29,22 @@ python = "^3.8"
 # For more reference go to:
 # https://github.com/python-jsonschema/jsonschema/issues/1117
 # https://github.com/python-jsonschema/jsonschema/issues/1114
-jsonschema = ">4, <4.18"
+#
+# Current state (2024–2025):
+# jsonschema >= 4.18 ships pure-Python wheels (py3-none-any)
+# rpds-py provides pre-built wheels for common platforms (manylinux, macOS, Windows, ARM)
+# Rust is only required when building rpds-py from source
+#
+# NOTE:
+# While rpds-py ships prebuilt wheels, Rust may still be required if pip falls
+# back to source builds (e.g., unsupported platforms, outdated pip,or
+# --no-binary usage). Build environments SHOULD prefer
+# wheels (e.g., --only-binary=:all:) to avoid reintroducing this dependency.
+#
+# The constraint is therefore relaxed to align with current ecosystem behavior
+# and downstream requirements (e.g., litellm >= 1.82.3 requires jsonschema >= 4.23),
+# while preserving API stability (<5.0.0).
+jsonschema = ">4.23, <5.0"
 ops = "*"
 pyyaml = "*"
 requests = "*"
