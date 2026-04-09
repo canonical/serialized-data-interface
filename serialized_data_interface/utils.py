@@ -52,7 +52,7 @@ class ZipFileWithPermissions(ZipFile):
 def get_schema(schema):
     """Ensures schema is retrieved if necessary, then loads it."""
     if isinstance(schema, str):
-        h = hashlib.md5()
+        h = hashlib.md5() # nosec B324
         h.update(schema.encode("utf-8"))
         p = Path("/tmp") / h.hexdigest()
         if p.exists():
