@@ -70,3 +70,6 @@ ipdb = "^0.13.9"
 
 [tool.isort]
 profile = "black"
+
+[tool.bandit]
+exclude_dirs = [".tox", ".venv", "venv"]
